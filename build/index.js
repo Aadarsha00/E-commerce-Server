@@ -24,10 +24,6 @@ app.use(express_1.default.json());
 app.use("/api/upload", express_1.default.static(path_1.default.join(__dirname, "../", "uploads")));
 //connecting mongoose
 (0, dbConnect_1.connectDatabase)();
-//? root api
-app.use("/", (req, res) => {
-    res.status(200).json({ message: "Server is up and running" });
-});
 //routes user
 app.use("/api/user", user_routes_1.default);
 //routes product
@@ -42,6 +38,10 @@ app.use("/api/cart", cart_routes_1.default);
 app.use("/api/wishlist", wishList_routes_1.default);
 //routes order
 app.use("/api/order", order_routes_1.default);
+//? root api
+app.use("/", (req, res) => {
+    res.status(200).json({ message: "Server is up and running" });
+});
 //handler not found path
 app.all("*", (req, res, next) => {
     const message = `can not ${req.method} on ${req.originalUrl}`;
