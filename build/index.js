@@ -19,11 +19,12 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
 //middleware
 app.use(express_1.default.urlencoded({ extended: false }));
+app.use(express_1.default.json());
 //serving static file
 app.use("/api/upload", express_1.default.static(path_1.default.join(__dirname, "../", "uploads")));
 //connecting mongoose
 (0, dbConnect_1.connectDatabase)();
-//?
+//? root api
 app.use("/", (req, res) => {
     res.status(200).json({ message: "Server is up and running" });
 });
