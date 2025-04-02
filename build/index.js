@@ -23,6 +23,10 @@ app.use(express_1.default.urlencoded({ extended: false }));
 app.use("/api/upload", express_1.default.static(path_1.default.join(__dirname, "../", "uploads")));
 //connecting mongoose
 (0, dbConnect_1.connectDatabase)();
+//?
+app.use("/", (req, res) => {
+    res.status(200).json({ message: "Server is up and running" });
+});
 //routes user
 app.use("/api/user", user_routes_1.default);
 //routes product

@@ -22,6 +22,11 @@ app.use("/api/upload", express.static(path.join(__dirname, "../", "uploads")));
 //connecting mongoose
 connectDatabase();
 
+//?
+app.use("/", (req: Request, res: Response) => {
+  res.status(200).json({ message: "Server is up and running" });
+});
+
 //routes user
 app.use("/api/user", userRoutes);
 
