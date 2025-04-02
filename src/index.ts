@@ -23,11 +23,6 @@ app.use("/api/upload", express.static(path.join(__dirname, "../", "uploads")));
 //connecting mongoose
 connectDatabase();
 
-//? root api
-app.use("/", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Server is up and running" });
-});
-
 //routes user
 app.use("/api/user", userRoutes);
 
@@ -48,6 +43,11 @@ app.use("/api/wishlist", wishListRoutes);
 
 //routes order
 app.use("/api/order", orderRoutes);
+
+//? root api
+app.use("/", (req: Request, res: Response) => {
+  res.status(200).json({ message: "Server is up and running" });
+});
 
 //handler not found path
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
