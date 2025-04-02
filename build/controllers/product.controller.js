@@ -89,7 +89,7 @@ exports.getAllProducts = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) 
         .find(filter)
         .limit(queryLimit)
         .skip(skip)
-        .populate("createdBy")
+        .populate("createdBy", "-password")
         .sort({ createdAt: -1 });
     const totalCount = yield product_model_1.default.countDocuments(filter);
     const pagination = (0, pagination_utils_1.getPagination)(currentPage, queryLimit, totalCount);
