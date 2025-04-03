@@ -15,11 +15,13 @@ const wishList_routes_1 = __importDefault(require("./routes/wishList.routes"));
 const order_routes_1 = __importDefault(require("./routes/order.routes"));
 const errorhandler_middleware_1 = require("./middleware/errorhandler.middleware");
 const path_1 = __importDefault(require("path"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
 //middleware
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(express_1.default.json());
+app.use((0, cors_1.default)());
 //serving static file
 app.use("/api/upload", express_1.default.static(path_1.default.join(__dirname, "../", "uploads")));
 //connecting mongoose

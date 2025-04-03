@@ -10,12 +10,14 @@ import wishListRoutes from "./routes/wishList.routes";
 import orderRoutes from "./routes/order.routes";
 import { CustomError } from "./middleware/errorhandler.middleware";
 import path from "path";
+import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 //middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors());
 
 //serving static file
 app.use("/api/upload", express.static(path.join(__dirname, "../", "uploads")));
