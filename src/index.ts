@@ -15,9 +15,13 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 //middleware
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cors());
 
 //serving static file
 app.use("/api/upload", express.static(path.join(__dirname, "../", "uploads")));
