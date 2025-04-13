@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //serving static file
-app.use("/api/upload", express.static(path.join(__dirname, "../", "uploads")));
+app.use("/api/uploads", express.static(path.join(__dirname, "../", "uploads")));
 
 //connecting mongoose
 connectDatabase();

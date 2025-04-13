@@ -25,7 +25,7 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(express_1.default.json());
 //serving static file
-app.use("/api/upload", express_1.default.static(path_1.default.join(__dirname, "../", "uploads")));
+app.use("/api/uploads", express_1.default.static(path_1.default.join(__dirname, "../", "uploads")));
 //connecting mongoose
 (0, dbConnect_1.connectDatabase)();
 //routes user
