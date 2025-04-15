@@ -9,6 +9,7 @@ import product from "../models/product.model";
 export const createCart = catchAsyncHandler(
   async (req: Request, res: Response) => {
     const { productId, quantity } = req.body;
+
     const userId = req.User._id;
     let Cart;
     if (!userId) {
@@ -18,21 +19,24 @@ export const createCart = catchAsyncHandler(
       throw new CustomError("ProductId is required", 400);
     }
     Cart = await cart.findOne({ user: userId });
+    console.log(Cart);
     if (!Cart) {
       Cart = new cart({ user: userId, items: [] });
     }
     const Product = await product.findById(productId);
+
     if (!Product) {
       throw new CustomError("Product not found", 404);
     }
     const existingProduct = Cart.items.filter(
       (item) => item.product.toString() === productId
     );
+    console.log("🚀 ~ existingProduct:", existingProduct);
     if (existingProduct && existingProduct.length > 0) {
-      existingProduct[0].quantity += quantity;
-      Cart.items.push(existingProduct);
+      existingProduct[0].quantity += parseInt(quantity);
+      // Cart.items.push(existingProduct);
     } else {
-      Cart.items.push({ product: productId, quantity });
+      Cart.items.push({ product: productId, quantity: parseInt(quantity) });
     }
     await Cart.save();
     res.status(201).json({

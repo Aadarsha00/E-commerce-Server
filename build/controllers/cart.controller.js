@@ -29,6 +29,7 @@ exports.createCart = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => _
         throw new errorhandler_middleware_1.CustomError("ProductId is required", 400);
     }
     Cart = yield cart_model_1.cart.findOne({ user: userId });
+    console.log(Cart);
     if (!Cart) {
         Cart = new cart_model_1.cart({ user: userId, items: [] });
     }
@@ -37,12 +38,13 @@ exports.createCart = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => _
         throw new errorhandler_middleware_1.CustomError("Product not found", 404);
     }
     const existingProduct = Cart.items.filter((item) => item.product.toString() === productId);
+    console.log("🚀 ~ existingProduct:", existingProduct);
     if (existingProduct && existingProduct.length > 0) {
-        existingProduct[0].quantity += quantity;
-        Cart.items.push(existingProduct);
+        existingProduct[0].quantity += parseInt(quantity);
+        // Cart.items.push(existingProduct);
     }
     else {
-        Cart.items.push({ product: productId, quantity });
+        Cart.items.push({ product: productId, quantity: parseInt(quantity) });
     }
     yield Cart.save();
     res.status(201).json({

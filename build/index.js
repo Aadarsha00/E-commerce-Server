@@ -54,6 +54,7 @@ app.all("*", (req, res, next) => {
 });
 //error handler
 app.use((error, req, res, next) => {
+    console.log(error);
     const statusCode = error.statusCode || 500;
     const status = error.status || "error";
     const message = error.message || "Something went wrong";
