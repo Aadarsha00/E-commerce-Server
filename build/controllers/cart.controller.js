@@ -19,7 +19,8 @@ const errorhandler_middleware_1 = require("../middleware/errorhandler.middleware
 const product_model_1 = __importDefault(require("../models/product.model"));
 //? Create cart
 exports.createCart = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, productId, quantity } = req.body;
+    const { productId, quantity } = req.body;
+    const userId = req.User._id;
     let Cart;
     if (!userId) {
         throw new errorhandler_middleware_1.CustomError("UserId  required", 400);
