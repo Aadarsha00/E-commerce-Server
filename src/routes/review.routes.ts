@@ -7,7 +7,7 @@ import {
   getReviewByProductId,
   updateReview,
 } from "../controllers/review.controller";
-import { onlyAdmin, onlyUser } from "../@types/global.types";
+import { allUser, onlyAdmin, onlyUser } from "../@types/global.types";
 const router = express.Router();
 
 //Posting review
@@ -23,6 +23,6 @@ router.patch("/:id", authenticate(onlyUser), updateReview);
 router.delete("/:id", authenticate(onlyUser), deleteReview);
 
 //get review by productId
-router.get("/:id", getReviewByProductId);
+router.get("/:id", authenticate(allUser), getReviewByProductId);
 
 export default router;
