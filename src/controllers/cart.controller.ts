@@ -52,7 +52,7 @@ export const createCart = catchAsyncHandler(
 export const getCartByUserId = catchAsyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.User._id;
-    const Cart = await cart.findOne({ user: userId });
+    const Cart = await cart.findOne({ user: userId }).populate("items.product");
     res.status(200).json({
       status: "Success",
       success: true,
