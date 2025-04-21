@@ -84,18 +84,10 @@ exports.clearCart = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __
 exports.removeItemFromCart = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = req.params.productId;
     const userId = req.User._id;
-    if (!productId) {
-        throw new errorhandler_middleware_1.CustomError("ProductId is required", 400);
-    }
-    const Cart = yield cart_model_1.cart.findOne({ user: userId });
-    if (!Cart) {
+    const updatedCart = yield cart_model_1.cart.findOneAndUpdate({ user: userId }, { $pull: { items: { product: productId } } }, { new: true });
+    if (!updatedCart) {
         throw new errorhandler_middleware_1.CustomError("Cart doesn't exist", 404);
     }
-    // const newCart = Cart.items.filter((item) => {
-    //    item.product.toString() !== productId;
-    // });
-    Cart.items.pull({ product: productId });
-    const updatedCart = yield Cart.save();
     res.status(200).json({
         status: "Success",
         success: true,

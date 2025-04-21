@@ -86,18 +86,16 @@ export const removeItemFromCart = catchAsyncHandler(
   async (req: Request, res: Response) => {
     const productId = req.params.productId;
     const userId = req.User._id;
-    if (!productId) {
-      throw new CustomError("ProductId is required", 400);
-    }
-    const Cart = await cart.findOne({ user: userId });
-    if (!Cart) {
+
+    const updatedCart = await cart.findOneAndUpdate(
+      { user: userId },
+      { $pull: { items: { product: productId } } },
+      { new: true }
+    );
+
+    if (!updatedCart) {
       throw new CustomError("Cart doesn't exist", 404);
     }
-    // const newCart = Cart.items.filter((item) => {
-    //    item.product.toString() !== productId;
-    // });
-    Cart.items.pull({ product: productId });
-    const updatedCart = await Cart.save();
 
     res.status(200).json({
       status: "Success",
