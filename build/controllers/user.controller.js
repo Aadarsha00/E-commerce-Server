@@ -135,7 +135,7 @@ const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     })
         .json({
         status: "success",
-        user: user_model_1.default,
+        user: User,
         success: true,
         message: "Login successfully",
         token,
