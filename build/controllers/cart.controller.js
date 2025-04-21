@@ -56,7 +56,7 @@ exports.createCart = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => _
 }));
 //?Get cart by userID
 exports.getCartByUserId = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.userId;
+    const userId = req.User._id;
     const Cart = yield cart_model_1.cart.findOne({ user: userId });
     res.status(200).json({
         status: "Success",

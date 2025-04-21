@@ -51,7 +51,7 @@ export const createCart = catchAsyncHandler(
 //?Get cart by userID
 export const getCartByUserId = catchAsyncHandler(
   async (req: Request, res: Response) => {
-    const userId = req.params.userId;
+    const userId = req.User._id;
     const Cart = await cart.findOne({ user: userId });
     res.status(200).json({
       status: "Success",
