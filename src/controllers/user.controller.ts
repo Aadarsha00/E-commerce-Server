@@ -144,6 +144,7 @@ export const userLogin = async (req: Request, res: Response) => {
     })
     .json({
       status: "success",
+      user,
       success: true,
       message: "Login successfully",
       token,
