@@ -65,7 +65,7 @@ export const getCartByUserId = catchAsyncHandler(
 //? Clear Cart
 export const clearCart = catchAsyncHandler(
   async (req: Request, res: Response) => {
-    const userId = req.params.userId;
+    const userId = req.User._id;
     const Cart = await cart.findOne({ user: userId });
     if (!Cart) {
       throw new CustomError("Cart doesn't exist", 404);
