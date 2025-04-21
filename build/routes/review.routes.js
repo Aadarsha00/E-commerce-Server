@@ -17,5 +17,5 @@ router.patch("/:id", (0, authentication_middleware_1.authenticate)(global_types_
 //delete review
 router.delete("/:id", (0, authentication_middleware_1.authenticate)(global_types_1.onlyUser), review_controller_1.deleteReview);
 //get review by productId
-router.get("/:id", (0, authentication_middleware_1.authenticate)(global_types_1.allUser), review_controller_1.getReviewByProductId);
+router.get("/:id", review_controller_1.getReviewByProductId);
 exports.default = router;
