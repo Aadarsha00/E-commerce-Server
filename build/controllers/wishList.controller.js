@@ -66,7 +66,7 @@ exports.getWishlistByUserId = (0, asyncHandler_utils_1.catchAsyncHandler)((req, 
 }));
 //?Remove product from wishList
 exports.removeProductFromWishLIst = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const productId = req.params.productId;
+    const productId = req.params.id;
     const userId = req.User._id;
     if (!productId) {
         throw new errorhandler_middleware_1.CustomError("ProductId is required.", 404);
@@ -80,15 +80,13 @@ exports.removeProductFromWishLIst = (0, asyncHandler_utils_1.catchAsyncHandler)(
     }
     //checking if the product is in wishList
     const productExist = User.wishList.some((item) => {
-        item.toString() === productId;
+        return item.toString() === productId;
     });
     if (!productExist) {
         throw new errorhandler_middleware_1.CustomError("Product doesn't exist", 404);
     }
     //removing the product
-    User.wishList.filter((item) => {
-        item.toString() !== productId;
-    });
+    User.wishList = User.wishList.filter((item) => item.toString() !== productId);
     yield User.save();
     res.status(200).json({
         status: "Success",

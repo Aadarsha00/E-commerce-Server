@@ -67,7 +67,7 @@ export const getWishlistByUserId = catchAsyncHandler(
 
 export const removeProductFromWishLIst = catchAsyncHandler(
   async (req: Request, res: Response) => {
-    const productId = req.params.productId;
+    const productId = req.params.id;
     const userId = req.User._id;
     if (!productId) {
       throw new CustomError("ProductId is required.", 404);
@@ -81,15 +81,15 @@ export const removeProductFromWishLIst = catchAsyncHandler(
     }
     //checking if the product is in wishList
     const productExist = User.wishList.some((item) => {
-      item.toString() === productId;
+      return item.toString() === productId;
     });
     if (!productExist) {
       throw new CustomError("Product doesn't exist", 404);
     }
     //removing the product
-    User.wishList.filter((item) => {
-      item.toString() !== productId;
-    });
+    User.wishList = User.wishList.filter(
+      (item) => item.toString() !== productId
+    );
     await User.save();
     res.status(200).json({
       status: "Success",
