@@ -30,7 +30,7 @@ export const createWishList = catchAsyncHandler(
 
     //Check if the item already exist in wishlist
     const existingWishList = User.wishList.some((item) => {
-      item.toString() === productId;
+      return item.toString() === productId;
     });
     if (!existingWishList) {
       User.wishList.push(productId);
