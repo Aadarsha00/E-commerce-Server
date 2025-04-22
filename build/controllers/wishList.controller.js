@@ -37,10 +37,8 @@ exports.createWishList = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) 
     if (!User) {
         throw new errorhandler_middleware_1.CustomError("User doesn't exist", 404);
     }
-    //Check if the item already exist in wishlist
-    const existingWishList = User.wishList.some((item) => {
-        return item.toString() === productId;
-    });
+    // Check if the item already exists in wishlist
+    const existingWishList = User.wishList.some((item) => item.equals(productId) || item.toString() === productId.toString());
     if (!existingWishList) {
         User.wishList.push(productId);
         yield User.save();
