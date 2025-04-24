@@ -117,7 +117,7 @@ const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const isMatch = yield (0, bcrypt_utils_1.comparePassword)(password, User.password);
     if (!isMatch) {
-        throw new errorhandler_middleware_1.CustomError("Incorrect Password.", 404);
+        throw new errorhandler_middleware_1.CustomError("Incorrect Password.", 401);
     }
     const payload = {
         _id: User._id,

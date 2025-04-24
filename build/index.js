@@ -21,6 +21,7 @@ const PORT = process.env.PORT || 8000;
 //middleware
 app.use((0, cors_1.default)({
     origin: "*",
+    credentials: true,
 }));
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(express_1.default.json());
