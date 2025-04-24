@@ -125,7 +125,7 @@ export const userLogin = async (req: Request, res: Response) => {
 
   const isMatch = await comparePassword(password, User.password);
   if (!isMatch) {
-    throw new CustomError("Password is required.", 404);
+    throw new CustomError("Incorrect Password.", 404);
   }
   const payload: IPayload = {
     _id: User._id,
