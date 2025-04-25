@@ -103,7 +103,7 @@ exports.updateUser = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => _
 //   }
 // };
 //?login
-const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.userLogin = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!email) {
         throw new errorhandler_middleware_1.CustomError("Email is required", 400);
@@ -140,8 +140,7 @@ const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         message: "Login successfully",
         token,
     });
-});
-exports.userLogin = userLogin;
+}));
 //?Find all user
 exports.getAllUser = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { limit, page, query } = req.query;
@@ -182,7 +181,7 @@ exports.getAllUser = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => _
     });
 }));
 //?admin login
-const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.adminLogin = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!email) {
         throw new errorhandler_middleware_1.CustomError("Email is required", 400);
@@ -219,5 +218,4 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         message: "Login successfully",
         token,
     });
-});
-exports.adminLogin = adminLogin;
+}));
