@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllUser = exports.userLogin = exports.updateUser = exports.registerUser = void 0;
+exports.adminLogin = exports.getAllUser = exports.userLogin = exports.updateUser = exports.registerUser = void 0;
 const bcrypt_utils_1 = require("./../utils/bcrypt.utils");
 const user_model_1 = __importDefault(require("../models/user.model"));
 const bcrypt_utils_2 = require("../utils/bcrypt.utils");
@@ -117,7 +117,7 @@ const userLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const isMatch = yield (0, bcrypt_utils_1.comparePassword)(password, User.password);
     if (!isMatch) {
-        throw new errorhandler_middleware_1.CustomError("Incorrect Password.", 401);
+        throw new errorhandler_middleware_1.CustomError("Email or password doesn't match", 401);
     }
     const payload = {
         _id: User._id,
@@ -181,3 +181,43 @@ exports.getAllUser = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => _
         message: "User fetched successfully.",
     });
 }));
+//?admin login
+const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    if (!email) {
+        throw new errorhandler_middleware_1.CustomError("Email is required", 400);
+    }
+    if (!password) {
+        throw new errorhandler_middleware_1.CustomError("Password is required.", 404);
+    }
+    const User = yield user_model_1.default.findOne({ email });
+    if (!User || User.role !== global_types_1.Role.admin) {
+        throw new errorhandler_middleware_1.CustomError("User not found", 404);
+    }
+    const isMatch = yield (0, bcrypt_utils_1.comparePassword)(password, User.password);
+    if (!isMatch) {
+        throw new errorhandler_middleware_1.CustomError("Email or password doesn't match", 401);
+    }
+    const payload = {
+        _id: User._id,
+        email: User.email,
+        firstName: User.firstName,
+        lastName: User.lastName,
+        role: User.role,
+    };
+    const token = (0, jwt_utils_1.generateToken)(payload);
+    res
+        .status(200)
+        .cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+    })
+        .json({
+        status: "success",
+        user: User,
+        success: true,
+        message: "Login successfully",
+        token,
+    });
+});
+exports.adminLogin = adminLogin;

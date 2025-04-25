@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  adminLogin,
   getAllUser,
   registerUser,
   updateUser,
@@ -23,5 +24,8 @@ router.post("/login", userLogin);
 
 //Get all Users
 router.get("/", authenticate(onlyAdmin), getAllUser);
+
+//admin login
+router.post("/admin/login", adminLogin);
 
 export default router;

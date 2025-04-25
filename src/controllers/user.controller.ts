@@ -125,7 +125,7 @@ export const userLogin = async (req: Request, res: Response) => {
 
   const isMatch = await comparePassword(password, User.password);
   if (!isMatch) {
-    throw new CustomError("Incorrect Password.", 401);
+    throw new CustomError("Email or password doesn't match", 401);
   }
   const payload: IPayload = {
     _id: User._id,
@@ -193,3 +193,46 @@ export const getAllUser = catchAsyncHandler(
     });
   }
 );
+
+//?admin login
+export const adminLogin = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (!email) {
+    throw new CustomError("Email is required", 400);
+  }
+  if (!password) {
+    throw new CustomError("Password is required.", 404);
+  }
+
+  const User = await user.findOne({ email });
+  if (!User || User.role !== Role.admin) {
+    throw new CustomError("User not found", 404);
+  }
+
+  const isMatch = await comparePassword(password, User.password);
+  if (!isMatch) {
+    throw new CustomError("Email or password doesn't match", 401);
+  }
+  const payload: IPayload = {
+    _id: User._id,
+    email: User.email,
+    firstName: User.firstName,
+    lastName: User.lastName,
+    role: User.role,
+  };
+  const token = generateToken(payload);
+
+  res
+    .status(200)
+    .cookie("access_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    })
+    .json({
+      status: "success",
+      user: User,
+      success: true,
+      message: "Login successfully",
+      token,
+    });
+};

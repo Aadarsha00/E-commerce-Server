@@ -18,4 +18,6 @@ router.patch("/:id", (0, authentication_middleware_1.authenticate)(), user_contr
 router.post("/login", user_controller_1.userLogin);
 //Get all Users
 router.get("/", (0, authentication_middleware_1.authenticate)(global_types_1.onlyAdmin), user_controller_1.getAllUser);
+//admin login
+router.post("/admin/login", user_controller_1.adminLogin);
 exports.default = router;
