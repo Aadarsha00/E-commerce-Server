@@ -107,14 +107,13 @@ exports.getAllProducts = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) 
 exports.updateProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { deletedImages, productName, productPrice, productCategoryId, productDescription, } = req.body;
     const id = req.params.id;
-    const { coverImage, images } = req.files;
+    // Make files optional
+    const files = req.files;
     const updatedProduct = yield product_model_1.default.findByIdAndUpdate(id, {
         productName,
         productPrice,
         productDescription,
-    }, {
-        new: true,
-    });
+    }, { new: true });
     if (!updatedProduct) {
         throw new errorhandler_middleware_1.CustomError("Product not found", 404);
     }
@@ -125,19 +124,18 @@ exports.updateProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
         }
         updatedProduct.productCategory = productCategoryId;
     }
-    if (!updatedProduct) {
-        throw new errorhandler_middleware_1.CustomError("Product not found", 404);
-    }
-    if (coverImage) {
+    // Only update cover image if new one was uploaded
+    if (files === null || files === void 0 ? void 0 : files.coverImage) {
         yield (0, deleteFiles_utils_1.deleteFiles)([updatedProduct.coverImage]);
-        updatedProduct.coverImage = coverImage[0].path;
+        updatedProduct.coverImage = files.coverImage[0].path;
     }
     if (deletedImages && deletedImages.length > 0) {
         yield (0, deleteFiles_utils_1.deleteFiles)(deletedImages);
         updatedProduct.images = updatedProduct.images.filter((image) => !deletedImages.includes(image));
     }
-    if (images && images.length > 0) {
-        const imagePath = images.map((image, index) => image.path);
+    // Only add new images if any were uploaded
+    if ((files === null || files === void 0 ? void 0 : files.images) && files.images.length > 0) {
+        const imagePath = files.images.map((image) => image.path);
         updatedProduct.images = [...updatedProduct.images, ...imagePath];
     }
     yield updatedProduct.save();

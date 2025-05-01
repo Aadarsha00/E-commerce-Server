@@ -116,9 +116,15 @@ export const updateProduct = catchAsyncHandler(
       productDescription,
     } = req.body;
     const id = req.params.id;
-    const { coverImage, images } = req.files as {
-      [fieldname: string]: Express.Multer.File[]; //defining type
-    };
+
+    // Make files optional
+    const files = req.files as
+      | {
+          coverImage?: Express.Multer.File[];
+          images?: Express.Multer.File[];
+        }
+      | undefined;
+
     const updatedProduct = await product.findByIdAndUpdate(
       id,
       {
@@ -126,13 +132,13 @@ export const updateProduct = catchAsyncHandler(
         productPrice,
         productDescription,
       },
-      {
-        new: true,
-      }
+      { new: true }
     );
+
     if (!updatedProduct) {
       throw new CustomError("Product not found", 404);
     }
+
     if (productCategoryId) {
       const Category = await category.findById(productCategoryId);
       if (!Category) {
@@ -140,12 +146,11 @@ export const updateProduct = catchAsyncHandler(
       }
       updatedProduct.productCategory = productCategoryId;
     }
-    if (!updatedProduct) {
-      throw new CustomError("Product not found", 404);
-    }
-    if (coverImage) {
+
+    // Only update cover image if new one was uploaded
+    if (files?.coverImage) {
       await deleteFiles([updatedProduct.coverImage as string]);
-      updatedProduct.coverImage = coverImage[0].path;
+      updatedProduct.coverImage = files.coverImage[0].path;
     }
 
     if (deletedImages && deletedImages.length > 0) {
@@ -154,10 +159,13 @@ export const updateProduct = catchAsyncHandler(
         (image) => !deletedImages.includes(image)
       );
     }
-    if (images && images.length > 0) {
-      const imagePath: string[] = images.map((image: any, index) => image.path);
+
+    // Only add new images if any were uploaded
+    if (files?.images && files.images.length > 0) {
+      const imagePath: string[] = files.images.map((image: any) => image.path);
       updatedProduct.images = [...updatedProduct.images, ...imagePath];
     }
+
     await updatedProduct.save();
     res.status(200).json({
       status: "success",
