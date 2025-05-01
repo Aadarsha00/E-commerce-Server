@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const product_controller_1 = require("../controllers/product.controller");
 const authentication_middleware_1 = require("../middleware/authentication.middleware");
 const router = express_1.default.Router();
-//multer
+// multer configuration
 const multer_1 = __importDefault(require("multer"));
 const global_types_1 = require("../@types/global.types");
 const storage = multer_1.default.diskStorage({
@@ -20,7 +20,7 @@ const storage = multer_1.default.diskStorage({
     },
 });
 const upload = (0, multer_1.default)({ storage: storage });
-//Posting the Product
+// Posting the Product
 router.post("/", (0, authentication_middleware_1.authenticate)(global_types_1.onlyAdmin), upload.fields([
     {
         name: "coverImage",
@@ -31,12 +31,21 @@ router.post("/", (0, authentication_middleware_1.authenticate)(global_types_1.on
         maxCount: 6,
     },
 ]), product_controller_1.createProduct);
-//Get all Products
+// Get all Products
 router.get("/", product_controller_1.getAllProducts);
-//Update products
-router.patch("/:id", product_controller_1.updateProduct);
-//Delete products
+// Update products - ADDED MULTER MIDDLEWARE
+router.patch("/:id", (0, authentication_middleware_1.authenticate)(global_types_1.onlyAdmin), upload.fields([
+    {
+        name: "coverImage",
+        maxCount: 1,
+    },
+    {
+        name: "images",
+        maxCount: 6,
+    },
+]), product_controller_1.updateProduct);
+// Delete products
 router.delete("/:id", (0, authentication_middleware_1.authenticate)(global_types_1.onlyAdmin), product_controller_1.deleteProduct);
-//get by id
+// Get by id
 router.get("/:id", product_controller_1.getProductById);
 exports.default = router;
