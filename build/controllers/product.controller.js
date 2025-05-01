@@ -105,71 +105,46 @@ exports.getAllProducts = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) 
 }));
 //?Update Product
 exports.updateProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { deletedImages, productName, productPrice, category: categoryId, productDescription, } = req.body;
+    const { deletedImages, productName, productPrice, productCategoryId, productDescription, } = req.body;
     const id = req.params.id;
-    // Find the product to update
-    const productToUpdate = yield product_model_1.default.findById(id);
-    if (!productToUpdate) {
+    const { coverImage, images } = req.files;
+    const updatedProduct = yield product_model_1.default.findByIdAndUpdate(id, {
+        productName,
+        productPrice,
+        productDescription,
+    }, {
+        new: true,
+    });
+    if (!updatedProduct) {
         throw new errorhandler_middleware_1.CustomError("Product not found", 404);
     }
-    // Update basic product details
-    productToUpdate.productName = productName || productToUpdate.productName;
-    productToUpdate.productPrice = productPrice || productToUpdate.productPrice;
-    productToUpdate.productDescription =
-        productDescription || productToUpdate.productDescription;
-    // Update category if provided
-    if (categoryId) {
-        const Category = yield category_model_1.default.findById(categoryId);
+    if (productCategoryId) {
+        const Category = yield category_model_1.default.findById(productCategoryId);
         if (!Category) {
             throw new errorhandler_middleware_1.CustomError("Category not found", 404);
         }
-        productToUpdate.productCategory = categoryId;
+        updatedProduct.productCategory = productCategoryId;
     }
-    // Handle files if they exist
-    if (req.files) {
-        const files = req.files;
-        // Handle new cover image if uploaded
-        if (files.coverImage && files.coverImage.length > 0) {
-            // Delete old cover image if it exists
-            if (productToUpdate.coverImage) {
-                yield (0, deleteFiles_utils_1.deleteFiles)([productToUpdate.coverImage]);
-            }
-            productToUpdate.coverImage = files.coverImage[0].path;
-        }
-        // Handle new images if uploaded
-        if (files.images && files.images.length > 0) {
-            const newImagePaths = files.images.map((image) => image.path);
-            // Combine with existing images
-            if (productToUpdate.images && productToUpdate.images.length > 0) {
-                productToUpdate.images = [
-                    ...productToUpdate.images,
-                    ...newImagePaths,
-                ];
-            }
-            else {
-                productToUpdate.images = newImagePaths;
-            }
-        }
+    if (!updatedProduct) {
+        throw new errorhandler_middleware_1.CustomError("Product not found", 404);
     }
-    // Handle deleted images if specified
+    if (coverImage) {
+        yield (0, deleteFiles_utils_1.deleteFiles)([updatedProduct.coverImage]);
+        updatedProduct.coverImage = coverImage[0].path;
+    }
     if (deletedImages && deletedImages.length > 0) {
-        try {
-            // Parse if it's a string (from FormData)
-            const imagesToDelete = typeof deletedImages === "string"
-                ? JSON.parse(deletedImages)
-                : deletedImages;
-            yield (0, deleteFiles_utils_1.deleteFiles)(imagesToDelete);
-            productToUpdate.images = productToUpdate.images.filter((image) => !imagesToDelete.includes(image));
-        }
-        catch (error) {
-            console.error("Error processing deleted images:", error);
-        }
+        yield (0, deleteFiles_utils_1.deleteFiles)(deletedImages);
+        updatedProduct.images = updatedProduct.images.filter((image) => !deletedImages.includes(image));
     }
-    yield productToUpdate.save();
+    if (images && images.length > 0) {
+        const imagePath = images.map((image, index) => image.path);
+        updatedProduct.images = [...updatedProduct.images, ...imagePath];
+    }
+    yield updatedProduct.save();
     res.status(200).json({
         status: "success",
         success: true,
-        data: productToUpdate,
+        data: updatedProduct,
         message: "Product updated successfully",
     });
 }));
