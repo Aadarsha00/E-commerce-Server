@@ -55,6 +55,7 @@ export const createProduct = catchAsyncHandler(
     });
   }
 );
+
 //?Get All Products
 export const getAllProducts = catchAsyncHandler(
   async (req: Request, res: Response) => {
@@ -112,57 +113,89 @@ export const updateProduct = catchAsyncHandler(
       deletedImages,
       productName,
       productPrice,
-      productCategoryId,
+      category: categoryId,
       productDescription,
     } = req.body;
+
     const id = req.params.id;
-    const { coverImage, images } = req.files as {
-      [fieldname: string]: Express.Multer.File[]; //defining type
-    };
-    const updatedProduct = await product.findByIdAndUpdate(
-      id,
-      {
-        productName,
-        productPrice,
-        productDescription,
-      },
-      {
-        new: true,
-      }
-    );
-    if (!updatedProduct) {
+
+    // Find the product to update
+    const productToUpdate = await product.findById(id);
+    if (!productToUpdate) {
       throw new CustomError("Product not found", 404);
     }
-    if (productCategoryId) {
-      const Category = await category.findById(productCategoryId);
+
+    // Update basic product details
+    productToUpdate.productName = productName || productToUpdate.productName;
+    productToUpdate.productPrice = productPrice || productToUpdate.productPrice;
+    productToUpdate.productDescription =
+      productDescription || productToUpdate.productDescription;
+
+    // Update category if provided
+    if (categoryId) {
+      const Category = await category.findById(categoryId);
       if (!Category) {
         throw new CustomError("Category not found", 404);
       }
-      updatedProduct.productCategory = productCategoryId;
-    }
-    if (!updatedProduct) {
-      throw new CustomError("Product not found", 404);
-    }
-    if (coverImage) {
-      await deleteFiles([updatedProduct.coverImage as string]);
-      updatedProduct.coverImage = coverImage[0].path;
+      productToUpdate.productCategory = categoryId;
     }
 
+    // Handle files if they exist
+    if (req.files) {
+      const files = req.files as {
+        coverImage?: Express.Multer.File[];
+        images?: Express.Multer.File[];
+      };
+
+      // Handle new cover image if uploaded
+      if (files.coverImage && files.coverImage.length > 0) {
+        // Delete old cover image if it exists
+        if (productToUpdate.coverImage) {
+          await deleteFiles([productToUpdate.coverImage as string]);
+        }
+        productToUpdate.coverImage = files.coverImage[0].path;
+      }
+
+      // Handle new images if uploaded
+      if (files.images && files.images.length > 0) {
+        const newImagePaths: string[] = files.images.map((image) => image.path);
+
+        // Combine with existing images
+        if (productToUpdate.images && productToUpdate.images.length > 0) {
+          productToUpdate.images = [
+            ...productToUpdate.images,
+            ...newImagePaths,
+          ];
+        } else {
+          productToUpdate.images = newImagePaths;
+        }
+      }
+    }
+
+    // Handle deleted images if specified
     if (deletedImages && deletedImages.length > 0) {
-      await deleteFiles(deletedImages as string[]);
-      updatedProduct.images = updatedProduct.images.filter(
-        (image) => !deletedImages.includes(image)
-      );
+      try {
+        // Parse if it's a string (from FormData)
+        const imagesToDelete =
+          typeof deletedImages === "string"
+            ? JSON.parse(deletedImages)
+            : deletedImages;
+
+        await deleteFiles(imagesToDelete as string[]);
+        productToUpdate.images = productToUpdate.images.filter(
+          (image) => !imagesToDelete.includes(image)
+        );
+      } catch (error) {
+        console.error("Error processing deleted images:", error);
+      }
     }
-    if (images && images.length > 0) {
-      const imagePath: string[] = images.map((image: any, index) => image.path);
-      updatedProduct.images = [...updatedProduct.images, ...imagePath];
-    }
-    await updatedProduct.save();
+
+    await productToUpdate.save();
+
     res.status(200).json({
       status: "success",
       success: true,
-      data: updatedProduct,
+      data: productToUpdate,
       message: "Product updated successfully",
     });
   }
