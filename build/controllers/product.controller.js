@@ -44,13 +44,13 @@ exports.createProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
     });
     Product.coverImage = {
         path: (_a = coverImage[0]) === null || _a === void 0 ? void 0 : _a.path,
-        public_id: (_b = coverImage[0]) === null || _b === void 0 ? void 0 : _b.fieldname,
+        public_id: (_b = coverImage[0]) === null || _b === void 0 ? void 0 : _b.filename,
     };
     if (images && images.length > 0) {
         const imagePath = images.map((image, index) => {
             return {
                 path: image.path,
-                public_id: image.fieldname,
+                public_id: image.filename,
             };
         });
         Product.images = imagePath;
@@ -130,7 +130,7 @@ exports.updateProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
         yield (0, deleteFiles_utils_1.deleteFiles)([Product.coverImage]);
         Product.coverImage = {
             path: coverImage[0].path,
-            public_id: coverImage[0].fieldname,
+            public_id: coverImage[0].filename,
         };
     }
     if (deletedImages && deletedImages.length > 0) {
@@ -141,7 +141,7 @@ exports.updateProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
         const imagePath = images.map((image, index) => {
             return {
                 path: image.path,
-                public_id: image.fieldname,
+                public_id: image.filename,
             };
         });
         Product.images = [...Product.images, ...imagePath];

@@ -43,14 +43,14 @@ export const createProduct = catchAsyncHandler(
 
     Product.coverImage = {
       path: coverImage[0]?.path,
-      public_id: coverImage[0]?.fieldname,
+      public_id: coverImage[0]?.filename,
     };
 
     if (images && images.length > 0) {
       const imagePath = images.map((image: any, index: number) => {
         return {
           path: image.path,
-          public_id: image.fieldname,
+          public_id: image.filename,
         };
       });
       Product.images = imagePath;
@@ -128,7 +128,7 @@ export const updateProduct = catchAsyncHandler(
     } = req.body;
     const id = req.params.id;
     const { coverImage, images } = req.files as {
-      [fieldname: string]: Express.Multer.File[];
+      [filename: string]: Express.Multer.File[];
     };
 
     const Product = await product.findByIdAndUpdate(
@@ -154,7 +154,7 @@ export const updateProduct = catchAsyncHandler(
       await deleteFiles([Product.coverImage as string]);
       Product.coverImage = {
         path: coverImage[0].path,
-        public_id: coverImage[0].fieldname,
+        public_id: coverImage[0].filename,
       };
     }
 
@@ -169,7 +169,7 @@ export const updateProduct = catchAsyncHandler(
       const imagePath = images.map((image: any, index: number) => {
         return {
           path: image.path,
-          public_id: image.fieldname,
+          public_id: image.filename,
         };
       });
       Product.images = [...Product.images, ...imagePath];
