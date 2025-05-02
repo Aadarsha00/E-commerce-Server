@@ -12,14 +12,18 @@ const router = express.Router();
 // multer configuration
 import multer from "multer";
 import { onlyAdmin } from "../@types/global.types";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.config";
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + file.originalname);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    // async code using `req` and `file`
+    // ...
+    return {
+      folder: "e-com/products",
+      allowed_format: ["jpeg", "png", "svg", "jpg", "webp"],
+    };
   },
 });
 

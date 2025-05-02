@@ -27,25 +27,35 @@ const productSchema = new mongoose_1.default.Schema({
     },
     productDescription: {
         type: String,
-        required: false,
-        min: [20, "Description must be at least 20 chars."],
+        minLength: [20, "Description must be at least 20 chars."],
         trim: true,
     },
     coverImage: {
-        type: String,
-        required: false,
+        public_id: {
+            type: String,
+            required: true,
+        },
+        path: {
+            type: String,
+            required: true,
+        },
     },
     images: [
         {
-            type: String,
-            required: false,
+            public_id: {
+                type: String,
+                required: true,
+            },
+            path: {
+                type: String,
+                required: true,
+            },
         },
     ],
     productReviews: [
         {
             type: mongoose_1.default.Types.ObjectId,
             ref: "review",
-            required: false,
         },
     ],
     averageRating: {
@@ -53,5 +63,5 @@ const productSchema = new mongoose_1.default.Schema({
         default: 0,
     },
 }, { timestamps: true });
-const product = mongoose_1.default.model("product", productSchema);
-exports.default = product;
+const Product = mongoose_1.default.model("Product", productSchema);
+exports.default = Product;

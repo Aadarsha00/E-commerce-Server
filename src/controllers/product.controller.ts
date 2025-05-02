@@ -11,8 +11,8 @@ export const createProduct = catchAsyncHandler(
   async (req: Request, res: Response) => {
     const {
       productName,
-      productDescription,
       productPrice,
+      productDescription,
       category: categoryId,
     } = req.body;
     const admin = req.User;
@@ -26,32 +26,43 @@ export const createProduct = catchAsyncHandler(
     const coverImage = files.coverImage;
     const images = files.images;
 
-    //get Category
+    // get category
     const Category = await category.findById(categoryId);
-    console.log(Category);
+
     if (!Category) {
       throw new CustomError("Category not found", 404);
     }
+
     const Product = new product({
       productName,
       productPrice,
       productDescription,
       createdBy: admin._id,
-      productCategory: Category._id,
+      category: Category._id,
     });
-    Product.coverImage = coverImage[0]?.path;
+
+    Product.coverImage = {
+      path: coverImage[0]?.path,
+      public_id: coverImage[0]?.fieldname,
+    };
+
     if (images && images.length > 0) {
-      const imagePath: string[] = images.map(
-        (image: any, index: number) => image.path
-      );
+      const imagePath = images.map((image: any, index: number) => {
+        return {
+          path: image.path,
+          public_id: image.fieldname,
+        };
+      });
       Product.images = imagePath;
     }
+
     await Product.save();
-    res.status(200).json({
+
+    res.status(201).json({
       status: "success",
       success: true,
-      data: Product,
-      message: "Product created successfully",
+      data: product,
+      message: "Product created successfully!",
     });
   }
 );
@@ -111,67 +122,66 @@ export const updateProduct = catchAsyncHandler(
     const {
       deletedImages,
       productName,
-      productPrice,
-      productCategoryId,
       productDescription,
+      productPrice,
+      categoryId,
     } = req.body;
     const id = req.params.id;
+    const { coverImage, images } = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
 
-    // Make files optional
-    const files = req.files as
-      | {
-          coverImage?: Express.Multer.File[];
-          images?: Express.Multer.File[];
-        }
-      | undefined;
-
-    const updatedProduct = await product.findByIdAndUpdate(
+    const Product = await product.findByIdAndUpdate(
       id,
-      {
-        productName,
-        productPrice,
-        productDescription,
-      },
+      { productName, productDescription, productPrice },
       { new: true }
     );
 
-    if (!updatedProduct) {
+    if (!Product) {
       throw new CustomError("Product not found", 404);
     }
 
-    if (productCategoryId) {
-      const Category = await category.findById(productCategoryId);
+    if (categoryId) {
+      const Category = await category.findById(categoryId);
       if (!Category) {
         throw new CustomError("Category not found", 404);
       }
-      updatedProduct.productCategory = productCategoryId;
+
+      Product.productCategory = categoryId;
     }
 
-    // Only update cover image if new one was uploaded
-    if (files?.coverImage) {
-      await deleteFiles([updatedProduct.coverImage as string]);
-      updatedProduct.coverImage = files.coverImage[0].path;
+    if (coverImage) {
+      await deleteFiles([Product.coverImage as string]);
+      Product.coverImage = {
+        path: coverImage[0].path,
+        public_id: coverImage[0].fieldname,
+      };
     }
 
     if (deletedImages && deletedImages.length > 0) {
       await deleteFiles(deletedImages as string[]);
-      updatedProduct.images = updatedProduct.images.filter(
-        (image) => !deletedImages.includes(image)
+      Product.images = Product.images.filter(
+        (image) => !deletedImages.includes(image.public_id)
       );
     }
 
-    // Only add new images if any were uploaded
-    if (files?.images && files.images.length > 0) {
-      const imagePath: string[] = files.images.map((image: any) => image.path);
-      updatedProduct.images = [...updatedProduct.images, ...imagePath];
+    if (images && images.length > 0) {
+      const imagePath = images.map((image: any, index: number) => {
+        return {
+          path: image.path,
+          public_id: image.fieldname,
+        };
+      });
+      Product.images = [...Product.images, ...imagePath];
     }
 
-    await updatedProduct.save();
-    res.status(200).json({
+    await Product.save();
+
+    res.status(201).json({
       status: "success",
       success: true,
-      data: updatedProduct,
-      message: "Product updated successfully",
+      data: Product,
+      message: "Product updated successfully!",
     });
   }
 );
@@ -185,8 +195,16 @@ export const deleteProduct = catchAsyncHandler(
     if (!Product) {
       throw new CustomError("Product not found", 404);
     }
+
+    if (Product.coverImage) {
+      //@ts-expect-error
+      await deleteFiles([Product.coverImage.public_id] as string[]);
+    }
+
     if (Product.images && Product.images.length > 0) {
-      await deleteFiles(Product.images as string[]);
+      await deleteFiles(
+        Product.images.map((image) => image.public_id) as string[]
+      );
     }
     await product.findByIdAndDelete(Product._id);
     res.status(200).json({

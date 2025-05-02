@@ -21,8 +21,8 @@ const category_model_1 = __importDefault(require("../models/category.model"));
 const pagination_utils_1 = require("../utils/pagination.utils");
 //?Create Product
 exports.createProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const { productName, productDescription, productPrice, category: categoryId, } = req.body;
+    var _a, _b;
+    const { productName, productPrice, productDescription, category: categoryId, } = req.body;
     const admin = req.User;
     const files = req.files;
     if (!files || !files.coverImage) {
@@ -30,9 +30,8 @@ exports.createProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
     }
     const coverImage = files.coverImage;
     const images = files.images;
-    //get Category
+    // get category
     const Category = yield category_model_1.default.findById(categoryId);
-    console.log(Category);
     if (!Category) {
         throw new errorhandler_middleware_1.CustomError("Category not found", 404);
     }
@@ -41,19 +40,27 @@ exports.createProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
         productPrice,
         productDescription,
         createdBy: admin._id,
-        productCategory: Category._id,
+        category: Category._id,
     });
-    Product.coverImage = (_a = coverImage[0]) === null || _a === void 0 ? void 0 : _a.path;
+    Product.coverImage = {
+        path: (_a = coverImage[0]) === null || _a === void 0 ? void 0 : _a.path,
+        public_id: (_b = coverImage[0]) === null || _b === void 0 ? void 0 : _b.fieldname,
+    };
     if (images && images.length > 0) {
-        const imagePath = images.map((image, index) => image.path);
+        const imagePath = images.map((image, index) => {
+            return {
+                path: image.path,
+                public_id: image.fieldname,
+            };
+        });
         Product.images = imagePath;
     }
     yield Product.save();
-    res.status(200).json({
+    res.status(201).json({
         status: "success",
         success: true,
-        data: Product,
-        message: "Product created successfully",
+        data: product_model_1.default,
+        message: "Product created successfully!",
     });
 }));
 //?Get All Products
@@ -105,45 +112,46 @@ exports.getAllProducts = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) 
 }));
 //?Update Product
 exports.updateProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { deletedImages, productName, productPrice, productCategoryId, productDescription, } = req.body;
+    const { deletedImages, productName, productDescription, productPrice, categoryId, } = req.body;
     const id = req.params.id;
-    // Make files optional
-    const files = req.files;
-    const updatedProduct = yield product_model_1.default.findByIdAndUpdate(id, {
-        productName,
-        productPrice,
-        productDescription,
-    }, { new: true });
-    if (!updatedProduct) {
+    const { coverImage, images } = req.files;
+    const Product = yield product_model_1.default.findByIdAndUpdate(id, { productName, productDescription, productPrice }, { new: true });
+    if (!Product) {
         throw new errorhandler_middleware_1.CustomError("Product not found", 404);
     }
-    if (productCategoryId) {
-        const Category = yield category_model_1.default.findById(productCategoryId);
+    if (categoryId) {
+        const Category = yield category_model_1.default.findById(categoryId);
         if (!Category) {
             throw new errorhandler_middleware_1.CustomError("Category not found", 404);
         }
-        updatedProduct.productCategory = productCategoryId;
+        Product.productCategory = categoryId;
     }
-    // Only update cover image if new one was uploaded
-    if (files === null || files === void 0 ? void 0 : files.coverImage) {
-        yield (0, deleteFiles_utils_1.deleteFiles)([updatedProduct.coverImage]);
-        updatedProduct.coverImage = files.coverImage[0].path;
+    if (coverImage) {
+        yield (0, deleteFiles_utils_1.deleteFiles)([Product.coverImage]);
+        Product.coverImage = {
+            path: coverImage[0].path,
+            public_id: coverImage[0].fieldname,
+        };
     }
     if (deletedImages && deletedImages.length > 0) {
         yield (0, deleteFiles_utils_1.deleteFiles)(deletedImages);
-        updatedProduct.images = updatedProduct.images.filter((image) => !deletedImages.includes(image));
+        Product.images = Product.images.filter((image) => !deletedImages.includes(image.public_id));
     }
-    // Only add new images if any were uploaded
-    if ((files === null || files === void 0 ? void 0 : files.images) && files.images.length > 0) {
-        const imagePath = files.images.map((image) => image.path);
-        updatedProduct.images = [...updatedProduct.images, ...imagePath];
+    if (images && images.length > 0) {
+        const imagePath = images.map((image, index) => {
+            return {
+                path: image.path,
+                public_id: image.fieldname,
+            };
+        });
+        Product.images = [...Product.images, ...imagePath];
     }
-    yield updatedProduct.save();
-    res.status(200).json({
+    yield Product.save();
+    res.status(201).json({
         status: "success",
         success: true,
-        data: updatedProduct,
-        message: "Product updated successfully",
+        data: Product,
+        message: "Product updated successfully!",
     });
 }));
 //?Delete Product
@@ -153,8 +161,12 @@ exports.deleteProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
     if (!Product) {
         throw new errorhandler_middleware_1.CustomError("Product not found", 404);
     }
+    if (Product.coverImage) {
+        //@ts-expect-error
+        yield (0, deleteFiles_utils_1.deleteFiles)([Product.coverImage.public_id]);
+    }
     if (Product.images && Product.images.length > 0) {
-        yield (0, deleteFiles_utils_1.deleteFiles)(Product.images);
+        yield (0, deleteFiles_utils_1.deleteFiles)(Product.images.map((image) => image.public_id));
     }
     yield product_model_1.default.findByIdAndDelete(Product._id);
     res.status(200).json({
