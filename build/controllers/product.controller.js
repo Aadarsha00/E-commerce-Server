@@ -40,7 +40,7 @@ exports.createProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) =
         productPrice,
         productDescription,
         createdBy: admin._id,
-        category: Category._id,
+        productCategory: Category._id,
     });
     Product.coverImage = {
         path: (_a = coverImage[0]) === null || _a === void 0 ? void 0 : _a.path,
