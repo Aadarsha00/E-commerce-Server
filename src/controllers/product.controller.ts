@@ -38,7 +38,7 @@ export const createProduct = catchAsyncHandler(
       productPrice,
       productDescription,
       createdBy: admin._id,
-      category: Category._id,
+      productCategory: Category._id,
     });
 
     Product.coverImage = {
