@@ -46,6 +46,10 @@ router.post("/", (0, authentication_middleware_1.authenticate)(global_types_1.on
 ]), product_controller_1.createProduct);
 // Get all Products
 router.get("/", product_controller_1.getAllProducts);
+//get trending
+router.get("/trending", product_controller_1.getTrendingProduct);
+//get summersale
+router.get("/summersale", product_controller_1.getSummerSale);
 // Update products - ADDED MULTER MIDDLEWARE
 router.patch("/:id", (0, authentication_middleware_1.authenticate)(global_types_1.onlyAdmin), upload.fields([
     {
@@ -61,8 +65,4 @@ router.patch("/:id", (0, authentication_middleware_1.authenticate)(global_types_
 router.delete("/:id", (0, authentication_middleware_1.authenticate)(global_types_1.onlyAdmin), product_controller_1.deleteProduct);
 // Get by id
 router.get("/:id", product_controller_1.getProductById);
-//get trending
-router.get("/trendingproducts", product_controller_1.getTrendingProduct);
-//get summersale
-router.get("/summersale", product_controller_1.getSummerSale);
 exports.default = router;

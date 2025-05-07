@@ -51,6 +51,12 @@ router.post(
 // Get all Products
 router.get("/", getAllProducts);
 
+//get trending
+router.get("/trending", getTrendingProduct);
+
+//get summersale
+router.get("/summersale", getSummerSale);
+
 // Update products - ADDED MULTER MIDDLEWARE
 router.patch(
   "/:id",
@@ -73,11 +79,5 @@ router.delete("/:id", authenticate(onlyAdmin), deleteProduct);
 
 // Get by id
 router.get("/:id", getProductById);
-
-//get trending
-router.get("/trendingproducts", getTrendingProduct);
-
-//get summersale
-router.get("/summersale", getSummerSale);
 
 export default router;
