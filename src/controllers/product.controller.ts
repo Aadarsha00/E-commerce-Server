@@ -229,3 +229,37 @@ export const getProductById = catchAsyncHandler(
     });
   }
 );
+
+//get trending product
+export const getTrendingProduct = catchAsyncHandler(
+  async (req: Request, res: Response) => {
+    const Product = await product
+      .find()
+      .sort({ createdAt: 1 })
+      .populate("createdBy", "-password");
+
+    res.status(200).json({
+      status: "Success",
+      success: true,
+      message: "Trending product fetched successfully",
+      data: Product,
+    });
+  }
+);
+
+//get Summersale
+export const getSummerSale = catchAsyncHandler(
+  async (req: Request, res: Response) => {
+    const Product = await product
+      .find()
+      .sort({ createdAt: -1 })
+      .populate("createdBy", "-password");
+
+    res.status(200).json({
+      status: "Success",
+      success: true,
+      message: "Trending product fetched successfully",
+      data: Product,
+    });
+  }
+);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductById = exports.deleteProduct = exports.updateProduct = exports.getAllProducts = exports.createProduct = void 0;
+exports.getSummerSale = exports.getTrendingProduct = exports.getProductById = exports.deleteProduct = exports.updateProduct = exports.getAllProducts = exports.createProduct = void 0;
 const asyncHandler_utils_1 = require("../utils/asyncHandler.utils");
 const errorhandler_middleware_1 = require("../middleware/errorhandler.middleware");
 const product_model_1 = __importDefault(require("../models/product.model"));
@@ -183,6 +183,32 @@ exports.getProductById = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) 
         status: "Success",
         success: true,
         message: "Product fetched.",
+        data: Product,
+    });
+}));
+//get trending product
+exports.getTrendingProduct = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const Product = yield product_model_1.default
+        .find()
+        .sort({ createdAt: 1 })
+        .populate("createdBy", "-password");
+    res.status(200).json({
+        status: "Success",
+        success: true,
+        message: "Trending product fetched successfully",
+        data: Product,
+    });
+}));
+//get Summersale
+exports.getSummerSale = (0, asyncHandler_utils_1.catchAsyncHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const Product = yield product_model_1.default
+        .find()
+        .sort({ createdAt: -1 })
+        .populate("createdBy", "-password");
+    res.status(200).json({
+        status: "Success",
+        success: true,
+        message: "Trending product fetched successfully",
         data: Product,
     });
 }));

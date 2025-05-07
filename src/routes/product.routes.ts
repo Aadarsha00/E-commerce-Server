@@ -4,6 +4,8 @@ import {
   deleteProduct,
   getAllProducts,
   getProductById,
+  getSummerSale,
+  getTrendingProduct,
   updateProduct,
 } from "../controllers/product.controller";
 import { authenticate } from "../middleware/authentication.middleware";
@@ -71,5 +73,11 @@ router.delete("/:id", authenticate(onlyAdmin), deleteProduct);
 
 // Get by id
 router.get("/:id", getProductById);
+
+//get trending
+router.get("/trendingproducts", getTrendingProduct);
+
+//get summersale
+router.get("/summersale", getSummerSale);
 
 export default router;
